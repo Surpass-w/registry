@@ -61,6 +61,26 @@ spec:
               mountPath: /var/lib/registry
             - name: reg-auth
               mountPath: /auth
+          livenessProbe:
+            httpGet:
+              path: /v2/_catalog
+              port: {{ .Values.service.port }}
+              scheme: HTTP
+              httpHeaders:
+                - name: Authorization
+                  value: Basic {{ printf "%s:%s" .Values.initContainer.username .Values.initContainer.password | b64enc }}
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /v2/_catalog
+              port: {{ .Values.service.port }}
+              scheme: HTTP
+              httpHeaders:
+                - name: Authorization
+                  value: Basic {{ printf "%s:%s" .Values.initContainer.username .Values.initContainer.password | b64enc }}
+            initialDelaySeconds: 10
+            periodSeconds: 10
       volumes:
         - name: reg-auth
           emptyDir: {}
